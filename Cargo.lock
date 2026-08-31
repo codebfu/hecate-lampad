@@ -495,7 +495,7 @@ dependencies = [
 [[package]]
 name = "hecate-lampad-core"
 version = "1.0.1"
-source = "git+https://github.com/codebfu/hecate-lampad-core.git?rev=cf31c6dba45271c683868ca8e3e7332d49aedbc4#cf31c6dba45271c683868ca8e3e7332d49aedbc4"
+source = "git+https://github.com/codebfu/hecate-lampad-core.git?rev=cf31c6d533df6bb4bdb033007d72b127e048cbd8#cf31c6d533df6bb4bdb033007d72b127e048cbd8"
 dependencies = [
  "anyhow",
  "async-trait",
