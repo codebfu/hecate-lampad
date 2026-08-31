@@ -1,0 +1,33 @@
+[Unit]
+Description=Hecate Lampad Agent
+Documentation=https://github.com/hecate/hecate-lampad-linux
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hecate-lampad
+Group=hecate-ipc
+# 0750 + hecate-ipc: agent owns the runtime dir; helper (desktop/proxmox) is in
+# hecate-ipc so it can create sockets. World write is no longer required.
+# Preserve across agent restarts so a self-update does not unlink the helper's
+# live socket inode (leaving an orphan listener the agent can no longer reach).
+RuntimeDirectory=hecate-lampad
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=yes
+ExecStart=/usr/bin/hecate-lampad run --config /etc/hecate-lampad/config.toml
+# always: self-update exits cleanly after replacing the agent binary; on-failure
+# would leave the unit dead (exit status 0/SUCCESS).
+Restart=always
+RestartSec=10
+
+# Hardening (NoNewPrivileges is omitted so sudo elevation can work when configured).
+# Do not use ReadWritePaths= here: it implies ProtectSystem=strict and breaks sudo/dpkg
+# for agent.update (children inherit this unit's mount namespace). Do not combine
+# ReadWritePaths= with ProtectSystem=no — systemd rejects that pair with exit 226/NAMESPACE.
+ProtectSystem=no
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

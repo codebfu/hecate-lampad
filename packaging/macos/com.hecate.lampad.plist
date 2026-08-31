@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.hecate.lampad</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/hecate-lampad</string>
+        <string>run</string>
+        <string>--config</string>
+        <string>/etc/hecate-lampad/config.toml</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/var/log/hecate-lampad.log</string>
+    <key>StandardErrorPath</key>
+    <string>/var/log/hecate-lampad.err</string>
+    <key>UserName</key>
+    <string>hecate-lampad</string>
+</dict>
+</plist>

@@ -1,0 +1,120 @@
+#!/bin/bash
+# postinstall for hecate-lampad agent component package.
+#
+# Payload files are already on disk when this runs. Prefer exiting 0 so
+# Installer.app does not show a false "installation failed" when optional
+# setup steps (user create / launchctl / visudo) are noisy on some macOS builds.
+set -uo pipefail
+
+SERVICE_USER="hecate-lampad"
+SERVICE_HOME="/var/lib/hecate-lampad"
+CONFIG_DIR="/etc/hecate-lampad"
+LOG_OUT="/var/log/hecate-lampad.log"
+LOG_ERR="/var/log/hecate-lampad.err"
+PLIST="/Library/LaunchDaemons/com.hecate.lampad.plist"
+LABEL="system/com.hecate.lampad"
+POSTLOG="/var/log/hecate-lampad-postinstall.log"
+
+log() {
+  echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $*" | tee -a "${POSTLOG}" >&2
+}
+
+warn() {
+  log "warning: $*"
+}
+
+# Hard failure only if the package payload is incomplete.
+if [ ! -x /usr/local/bin/hecate-lampad ]; then
+  log "error: missing /usr/local/bin/hecate-lampad"
+  exit 1
+fi
+
+install -d -m 755 /var/log 2>/dev/null || true
+: >>"${POSTLOG}" 2>/dev/null || true
+log "postinstall starting"
+
+# Create dedicated service user when missing.
+if ! dscl . -read "/Users/${SERVICE_USER}" >/dev/null 2>&1; then
+  install -d -m 755 "${SERVICE_HOME}" || true
+  if ! sysadminctl -addUser "${SERVICE_USER}" -fullName "Hecate Lampad" -password "-" \
+    -home "${SERVICE_HOME}" >>"${POSTLOG}" 2>&1; then
+    # Fallback for hosts where sysadminctl is unavailable or non-interactive.
+    if ! dscl . -create "/Users/${SERVICE_USER}" >>"${POSTLOG}" 2>&1; then
+      warn "could not create user ${SERVICE_USER}"
+    else
+      dscl . -create "/Users/${SERVICE_USER}" UserShell /usr/bin/false >>"${POSTLOG}" 2>&1 || true
+      dscl . -create "/Users/${SERVICE_USER}" RealName "Hecate Lampad" >>"${POSTLOG}" 2>&1 || true
+      dscl . -create "/Users/${SERVICE_USER}" NFSHomeDirectory "${SERVICE_HOME}" >>"${POSTLOG}" 2>&1 || true
+      # Pick an unused UID in the service range.
+      uid=450
+      while dscl . -list /Users UniqueID 2>/dev/null | awk '{print $2}' | grep -qx "${uid}"; do
+        uid=$((uid + 1))
+      done
+      dscl . -create "/Users/${SERVICE_USER}" UniqueID "${uid}" >>"${POSTLOG}" 2>&1 || true
+      dscl . -create "/Users/${SERVICE_USER}" PrimaryGroupID 20 >>"${POSTLOG}" 2>&1 || true
+      log "created user ${SERVICE_USER} via dscl (uid ${uid})"
+    fi
+  else
+    log "created user ${SERVICE_USER} via sysadminctl"
+  fi
+fi
+
+install -d -m 750 "${CONFIG_DIR}" || true
+install -d -m 755 "${SERVICE_HOME}" /var/log || true
+# launchd EX_CONFIG (78) if UserName cannot open StandardOutPath/StandardErrorPath.
+touch "${LOG_OUT}" "${LOG_ERR}" || true
+if dscl . -read "/Users/${SERVICE_USER}" >/dev/null 2>&1; then
+  chown "${SERVICE_USER}:wheel" "${LOG_OUT}" "${LOG_ERR}" "${SERVICE_HOME}" 2>>"${POSTLOG}" || \
+    chown "${SERVICE_USER}:staff" "${LOG_OUT}" "${LOG_ERR}" "${SERVICE_HOME}" 2>>"${POSTLOG}" || \
+    warn "chown service paths failed"
+  chown "${SERVICE_USER}:wheel" "${CONFIG_DIR}" 2>>"${POSTLOG}" || \
+    chown "${SERVICE_USER}:staff" "${CONFIG_DIR}" 2>>"${POSTLOG}" || true
+fi
+chmod 644 "${LOG_OUT}" "${LOG_ERR}" 2>/dev/null || true
+
+# Preserve existing enrollment files; ensure the service user can read them.
+if [ -f "${CONFIG_DIR}/config.toml" ] && dscl . -read "/Users/${SERVICE_USER}" >/dev/null 2>&1; then
+  chown "${SERVICE_USER}:wheel" "${CONFIG_DIR}/config.toml" 2>/dev/null || \
+    chown "${SERVICE_USER}:staff" "${CONFIG_DIR}/config.toml" 2>/dev/null || true
+  chmod 640 "${CONFIG_DIR}/config.toml" 2>/dev/null || true
+fi
+if [ -f "${CONFIG_DIR}/agent.key" ] && dscl . -read "/Users/${SERVICE_USER}" >/dev/null 2>&1; then
+  chown "${SERVICE_USER}:wheel" "${CONFIG_DIR}/agent.key" 2>/dev/null || \
+    chown "${SERVICE_USER}:staff" "${CONFIG_DIR}/agent.key" 2>/dev/null || true
+  chmod 600 "${CONFIG_DIR}/agent.key" 2>/dev/null || true
+fi
+
+if [ -f /etc/sudoers.d/hecate-lampad ]; then
+  chmod 440 /etc/sudoers.d/hecate-lampad 2>/dev/null || true
+  chown root:wheel /etc/sudoers.d/hecate-lampad 2>/dev/null || true
+  # Validate, but never fail the package on visudo noise.
+  if command -v visudo >/dev/null 2>&1; then
+    if ! visudo -c -f /etc/sudoers.d/hecate-lampad >>"${POSTLOG}" 2>&1; then
+      warn "visudo check reported an issue (sudoers fragment left in place)"
+    fi
+  fi
+fi
+
+if [ ! -f "${PLIST}" ]; then
+  log "error: missing ${PLIST}"
+  exit 1
+fi
+chown root:wheel "${PLIST}" 2>/dev/null || true
+chmod 644 "${PLIST}" 2>/dev/null || true
+
+launchctl bootout "${LABEL}" >>"${POSTLOG}" 2>&1 || true
+launchctl enable "${LABEL}" >>"${POSTLOG}" 2>&1 || true
+if ! launchctl bootstrap system "${PLIST}" >>"${POSTLOG}" 2>&1; then
+  # Already loaded / transient installer-context errors are common; kickstart may still work.
+  warn "launchctl bootstrap returned non-zero; attempting kickstart"
+fi
+launchctl kickstart -k "${LABEL}" >>"${POSTLOG}" 2>&1 || true
+
+if launchctl print "${LABEL}" >>"${POSTLOG}" 2>&1; then
+  log "LaunchDaemon ${LABEL} is loaded"
+else
+  warn "LaunchDaemon ${LABEL} not visible yet; it should load after reboot"
+fi
+
+log "postinstall finished"
+exit 0
