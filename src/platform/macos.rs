@@ -1,9 +1,10 @@
 use hecate_lampad_core::{
-    collect_agent_tags, collect_status, default_runtime_status_path, generate_completion,
-    build_enroll_request, local_hostname, parse_with_defaults, prepare_agent_enrollment,
-    read_enrollment_token, run_agent_service, run_agent_update, submit_enrollment,
-    AgentRunOptions, AgentUpdateOptions, Commands, PlatformDefaults, ServiceProbe, ServiceReport,
-    ServiceStatus, StatusOptions, print_status_json, print_status_report,
+    collect_agent_tags, collect_status, default_runtime_status_path, forget_agent_enrollment,
+    generate_completion, build_enroll_request, local_hostname, parse_with_defaults,
+    prepare_agent_enrollment, print_forget_report, read_enrollment_token, run_agent_service,
+    run_agent_update, submit_enrollment, AgentRunOptions, AgentUpdateOptions, Commands,
+    ForgetEnrollmentOptions, PlatformDefaults, ServiceProbe, ServiceReport, ServiceStatus,
+    StatusOptions, print_status_json, print_status_report,
 };
 use std::env::consts::{ARCH, OS};
 use std::path::{Path, PathBuf};
@@ -72,6 +73,9 @@ pub async fn run() -> anyhow::Result<()> {
         Commands::Update { .. } => {
             return run_update(&cli).await;
         }
+        Commands::Forget => {
+            return run_forget(&cli);
+        }
         _ => {}
     }
 
@@ -106,8 +110,18 @@ pub async fn run() -> anyhow::Result<()> {
             .await
         }
         Commands::Update { .. } => unreachable!(),
-        Commands::Status { .. } | Commands::Complete { .. } => unreachable!(),
+        Commands::Status { .. } | Commands::Complete { .. } | Commands::Forget => unreachable!(),
     }
+}
+
+fn run_forget(cli: &hecate_lampad_core::Cli) -> anyhow::Result<()> {
+    let report = forget_agent_enrollment(ForgetEnrollmentOptions {
+        config_path: cli.config.clone(),
+        key_path: cli.key_path.clone(),
+        runtime_status_path: default_runtime_status_path(),
+    })?;
+    print_forget_report(&report);
+    Ok(())
 }
 
 async fn run_update(cli: &hecate_lampad_core::Cli) -> anyhow::Result<()> {
