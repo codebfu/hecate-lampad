@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4 — 2026-09-21
+
+- After Linux desktop helper install, activate live GUI sessions (hecate-lampad-core 1.0.4).
+
 ## 1.0.3 — 2026-08-31
 
 - Auto-repair agent connectivity without manual `systemctl restart` after enroll (hecate-lampad-core 1.0.3).
