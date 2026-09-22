@@ -478,7 +478,7 @@ checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 
 [[package]]
 name = "hecate-lampad"
-version = "1.0.6"
+version = "1.0.7"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -494,8 +494,8 @@ dependencies = [
 
 [[package]]
 name = "hecate-lampad-core"
-version = "1.0.6"
-source = "git+https://github.com/codebfu/hecate-lampad-core.git?rev=a08e994ea39c359b9e40a9bac03d75147b2d9809#a08e994ea39c359b9e40a9bac03d75147b2d9809"
+version = "1.0.7"
+source = "git+https://github.com/codebfu/hecate-lampad-core.git?rev=ecf6e3952f34750366f4ff7534fafe0ca24985f6#ecf6e3952f34750366f4ff7534fafe0ca24985f6"
 dependencies = [
  "anyhow",
  "async-trait",
