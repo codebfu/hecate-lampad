@@ -67,13 +67,19 @@ if ! id hecate-lampad >/dev/null 2>&1; then
   useradd --system --home-dir /var/lib/hecate-lampad --shell /usr/sbin/nologin --gid hecate-ipc hecate-lampad 2>/dev/null || true
 fi
 usermod -a -G hecate-ipc hecate-lampad 2>/dev/null || true
+install -d -m 0750 /etc/hecate-lampad 2>/dev/null || true
+# Always restore service ownership: helper package postinsts must not leave this
+# dir as root:root 0750 (agent then cannot read config.toml).
+if id hecate-lampad >/dev/null 2>&1; then
+  chown hecate-lampad:hecate-ipc /etc/hecate-lampad 2>/dev/null || true
+fi
 chmod 750 /etc/hecate-lampad 2>/dev/null || true
 if [ -f /etc/hecate-lampad/config.toml ]; then
-  chown hecate-lampad:hecate-lampad /etc/hecate-lampad /etc/hecate-lampad/config.toml 2>/dev/null || true
+  chown hecate-lampad:hecate-ipc /etc/hecate-lampad/config.toml 2>/dev/null || true
   chmod 640 /etc/hecate-lampad/config.toml 2>/dev/null || true
 fi
 if [ -f /etc/hecate-lampad/agent.key ]; then
-  chown hecate-lampad:hecate-lampad /etc/hecate-lampad/agent.key 2>/dev/null || true
+  chown hecate-lampad:hecate-ipc /etc/hecate-lampad/agent.key 2>/dev/null || true
   chmod 600 /etc/hecate-lampad/agent.key 2>/dev/null || true
 fi
 if [ -f /etc/sudoers.d/hecate-lampad ]; then

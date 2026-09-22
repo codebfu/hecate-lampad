@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.5 — 2026-09-22
+
+- Always restore `/etc/hecate-lampad` ownership to `hecate-lampad:hecate-ipc` in postinst (guards against helper packages leaving the dir as `root:root` `0750`).
+- Clearer readiness errors when config is not readable (hecate-lampad-core 1.0.5).
+
 ## 1.0.4 — 2026-09-21
 
 - After Linux desktop helper install, activate live GUI sessions (hecate-lampad-core 1.0.4).
