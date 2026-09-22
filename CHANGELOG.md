@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.6 — 2026-09-22
+
+- Auto-repair desktop IPC socket/token group to `hecate-ipc` when the helper recreates them without group access (hecate-lampad-core 1.0.6).
+
 ## 1.0.5 — 2026-09-22
 
 - Always restore `/etc/hecate-lampad` ownership to `hecate-lampad:hecate-ipc` in postinst (guards against helper packages leaving the dir as `root:root` `0750`).

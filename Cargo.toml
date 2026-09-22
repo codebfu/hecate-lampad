@@ -1,7 +1,7 @@
 [package]
 name = "hecate-lampad"
 description = "Hecate lampad agent (Linux, macOS, Windows)"
-version = "1.0.5"
+version = "1.0.6"
 edition = "2024"
 rust-version = "1.93"
 license = "GPL-3.0-or-later"
@@ -12,7 +12,7 @@ name = "hecate-lampad"
 path = "src/main.rs"
 
 [dependencies]
-hecate-lampad-core = { git = "https://github.com/codebfu/hecate-lampad-core.git", rev = "ea2e11d3a71c6570fab63993f362f48c16716d1e" }
+hecate-lampad-core = { git = "https://github.com/codebfu/hecate-lampad-core.git", rev = "a08e994ea39c359b9e40a9bac03d75147b2d9809" }
 hecate-protocol = { git = "https://github.com/codebfu/hecate.git", rev = "14d626dca14b08e6e65be5c6139f63beafdd9f33", package = "hecate-protocol" }
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
@@ -26,4 +26,4 @@ async-trait = "0.1"
 windows-service = "0.8"
 
 [build-dependencies]
-hecate-lampad-core = { git = "https://github.com/codebfu/hecate-lampad-core.git", rev = "ea2e11d3a71c6570fab63993f362f48c16716d1e" }
+hecate-lampad-core = { git = "https://github.com/codebfu/hecate-lampad-core.git", rev = "a08e994ea39c359b9e40a9bac03d75147b2d9809" }
