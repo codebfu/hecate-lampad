@@ -478,7 +478,7 @@ checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 
 [[package]]
 name = "hecate-lampad"
-version = "1.0.7"
+version = "1.0.8"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -494,8 +494,8 @@ dependencies = [
 
 [[package]]
 name = "hecate-lampad-core"
-version = "1.0.7"
-source = "git+https://github.com/codebfu/hecate-lampad-core.git?rev=ecf6e3952f34750366f4ff7534fafe0ca24985f6#ecf6e3952f34750366f4ff7534fafe0ca24985f6"
+version = "1.0.8"
+source = "git+https://github.com/codebfu/hecate-lampad-core.git?rev=329c1242458b62007bf785e7adee20a41b9d509a#329c1242458b62007bf785e7adee20a41b9d509a"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -504,7 +504,7 @@ dependencies = [
  "clap",
  "clap_complete",
  "ed25519-dalek",
- "hecate-lampad-helper-base",
+ "hecate-lampad-helper-base 1.0.1",
  "hecate-protocol",
  "libc",
  "rand 0.8.8",
@@ -524,6 +524,16 @@ name = "hecate-lampad-helper-base"
 version = "1.0.0"
 source = "git+https://github.com/codebfu/hecate-lampad-helper-base.git?rev=9e401cb7f29ccdab070e5c488aa919dad729f7c2#9e401cb7f29ccdab070e5c488aa919dad729f7c2"
 dependencies = [
+ "libc",
+ "thiserror",
+ "windows",
+]
+
+[[package]]
+name = "hecate-lampad-helper-base"
+version = "1.0.1"
+source = "git+https://github.com/codebfu/hecate-lampad-helper-base.git?rev=67dc114a82eb10f517f4728ebaa3861fc2d13c73#67dc114a82eb10f517f4728ebaa3861fc2d13c73"
+dependencies = [
  "hex",
  "libc",
  "rand 0.8.8",
@@ -542,7 +552,7 @@ version = "1.0.0"
 source = "git+https://github.com/codebfu/hecate.git?rev=14d626dca14b08e6e65be5c6139f63beafdd9f33#14d626dca14b08e6e65be5c6139f63beafdd9f33"
 dependencies = [
  "chrono",
- "hecate-lampad-helper-base",
+ "hecate-lampad-helper-base 1.0.0",
  "serde",
  "serde_json",
  "sha2",
