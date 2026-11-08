@@ -56,7 +56,7 @@ jobs:
 
       - name: Install Linux packaging tools
         if: matrix.platform == 'linux'
-        run: sudo apt-get update && sudo apt-get install -y dpkg-dev
+        run: sudo apt-get update && sudo apt-get install -y dpkg-dev rpm
 
       - name: Install Windows packaging tools
         if: matrix.platform == 'windows'
@@ -64,11 +64,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mingw-w64 wixl msitools
 
-      - name: Build Linux .deb
+      - name: Build Linux .deb and .rpm
         if: matrix.platform == 'linux'
         run: |
           export VERSION="${VERSION}"
           bash packaging/linux/build-deb.sh
+          # Reuse the release binary built by build-deb.sh.
+          BINARY="${GITHUB_WORKSPACE}/target/release/hecate-lampad" \
+            bash packaging/linux/build-rpm.sh
 
       - name: Build Windows .msi
         if: matrix.platform == 'windows'
@@ -101,6 +104,10 @@ jobs:
             artifact_os: linux
             artifact_arch: x86_64
             installer_type: deb
+          - platform: linux
+            artifact_os: linux
+            artifact_arch: x86_64
+            installer_type: rpm
           - platform: windows
             artifact_os: windows
             artifact_arch: x86_64
@@ -160,14 +167,18 @@ jobs:
           platform="${{ matrix.platform }}"
           artifact_os="${{ matrix.artifact_os }}"
           artifact_arch="${{ matrix.artifact_arch }}"
-          case "${platform}" in
-            linux)
+          installer_type="${{ matrix.installer_type }}"
+          case "${platform}:${installer_type}" in
+            linux:deb)
               artifact="dist/hecate-lampad_${VERSION}_amd64.deb"
               ;;
-            windows)
+            linux:rpm)
+              artifact="dist/hecate-lampad-${VERSION}-1.x86_64.rpm"
+              ;;
+            windows:*)
               artifact="dist/hecate-lampad_${VERSION}_windows-amd64.msi"
               ;;
-            macos)
+            macos:*)
               artifact="$(ls dist/hecate-lampad_${VERSION}_macos-*.pkg | head -n 1)"
               artifact_arch="$(basename "$artifact" | sed -n "s/.*_macos-\\(.*\\)\\.pkg$/\\1/p")"
               ;;
@@ -177,5 +188,5 @@ jobs:
             --artifact "$artifact" \
             --os "$artifact_os" \
             --arch "$artifact_arch" \
-            --installer-type "${{ matrix.installer_type }}" \
+            --installer-type "$installer_type" \
             --kind agent

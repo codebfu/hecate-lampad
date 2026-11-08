@@ -21,13 +21,14 @@ ExecStart=/usr/bin/hecate-lampad run --config /etc/hecate-lampad/config.toml
 Restart=always
 RestartSec=10
 
-# Hardening (NoNewPrivileges is omitted so sudo elevation can work when configured).
+# Hardening must not break sudo elevation for elevated shell.run / package install:
+# - omit NoNewPrivileges=yes
+# - omit RestrictAddressFamilies= (seccomp implies NoNewPrivs → sudo setuid fails)
 # Do not use ReadWritePaths= here: it implies ProtectSystem=strict and breaks sudo/dpkg
 # for agent.update (children inherit this unit's mount namespace). Do not combine
 # ReadWritePaths= with ProtectSystem=no — systemd rejects that pair with exit 226/NAMESPACE.
 ProtectSystem=no
 PrivateTmp=yes
-RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 
 [Install]
 WantedBy=multi-user.target

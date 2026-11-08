@@ -28,9 +28,9 @@ RuntimeDirectoryPreserve=yes
 ExecStart=/usr/bin/hecate-lampad run --config /etc/hecate-lampad/config.toml
 Restart=always
 RestartSec=10
+# Omit NoNewPrivileges / RestrictAddressFamilies: both force NoNewPrivs and break sudo.
 ProtectSystem=no
 PrivateTmp=yes
-RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 
 [Install]
 WantedBy=multi-user.target
