@@ -63,6 +63,9 @@ install -m 644 "${COMPLETIONS}/fish/hecate-lampad.fish" \
 tar -C "${WORK}/payload" -czf "${RPMBUILD}/SOURCES/hecate-lampad-${VERSION}.tar.gz" .
 
 cat >"${RPMBUILD}/SPECS/hecate-lampad.spec" <<EOF
+# Prebuilt binary payload — skip debuginfo (eu-strip not required on CI hosts).
+%global debug_package %{nil}
+
 Name:           hecate-lampad
 Version:        ${VERSION}
 Release:        ${RELEASE}%{?dist}
