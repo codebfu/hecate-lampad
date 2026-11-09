@@ -2,7 +2,9 @@
 # Copyright (C) 2026 Gaultier HUBERT
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# Build an x86_64 RPM for hecate-lampad (Fedora / EL9+ compatible).
+# Build an x86_64 RPM for hecate-lampad.
+# The linked binary must target glibc <= 2.28 for Rocky/Alma/RHEL 8 hosts.
+# Prefer packaging/linux/build-rpm-in-el8.sh from ubuntu CI hosts.
 # Usage: VERSION=1.2.3 ./build-rpm.sh
 # Optional: BINARY=/path/to/hecate-lampad (defaults to target/release/hecate-lampad)
 set -euo pipefail

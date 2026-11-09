@@ -56,7 +56,7 @@ jobs:
 
       - name: Install Linux packaging tools
         if: matrix.platform == 'linux'
-        run: sudo apt-get update && sudo apt-get install -y dpkg-dev rpm
+        run: sudo apt-get update && sudo apt-get install -y dpkg-dev
 
       - name: Install Windows packaging tools
         if: matrix.platform == 'windows'
@@ -64,14 +64,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mingw-w64 wixl msitools
 
-      - name: Build Linux .deb and .rpm
+      - name: Build Linux .deb
         if: matrix.platform == 'linux'
         run: |
           export VERSION="${VERSION}"
           bash packaging/linux/build-deb.sh
-          # Reuse the release binary built by build-deb.sh.
-          BINARY="${GITHUB_WORKSPACE}/target/release/hecate-lampad" \
-            bash packaging/linux/build-rpm.sh
+
+      - name: Build Linux .rpm (Rocky 8 / glibc 2.28)
+        if: matrix.platform == 'linux'
+        run: |
+          export VERSION="${VERSION}"
+          export HECATE_AGENT_VERSION="${VERSION}"
+          bash packaging/linux/build-rpm-in-el8.sh
 
       - name: Build Windows .msi
         if: matrix.platform == 'windows'

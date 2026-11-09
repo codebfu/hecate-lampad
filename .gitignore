@@ -1,4 +1,6 @@
 /target/
+/target-el8/
+/.cargo-el8/
 .DS_Store
 dist/
 completions/
