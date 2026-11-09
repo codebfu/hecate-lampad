@@ -44,12 +44,13 @@ docker run --rm \
   bash -lc '
     set -euo pipefail
     dnf -y install gcc gcc-c++ make openssl-devel rpm-build tar gzip git curl
-    if [[ ! -x /root/.cargo/bin/rustc ]]; then
+    cargo_env="${CARGO_HOME:-$HOME/.cargo}/env"
+    if [[ ! -x "${CARGO_HOME:-$HOME/.cargo}/bin/rustc" ]]; then
       curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs \
         | sh -s -- -y --default-toolchain stable --profile minimal
     fi
-    # shellcheck disable=SC1091
-    source /root/.cargo/env
+    # shellcheck disable=SC1090
+    source "${cargo_env}"
     rustc --version
     bash packaging/linux/build-rpm.sh
   '
