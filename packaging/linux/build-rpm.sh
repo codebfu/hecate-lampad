@@ -18,7 +18,8 @@ resolve_agent_package_version "${ROOT}"
 ARCH="x86_64"
 DIST="${ROOT}/dist"
 WORK="$(mktemp -d)"
-BINARY="${BINARY:-${ROOT}/target/release/hecate-lampad}"
+TARGET_DIR="${CARGO_TARGET_DIR:-${ROOT}/target}"
+BINARY="${BINARY:-${TARGET_DIR}/release/hecate-lampad}"
 SUDOERS_SRC="${ROOT}/packaging/sudoers/hecate-lampad"
 RELEASE="${RPM_RELEASE:-1}"
 
@@ -26,7 +27,7 @@ trap 'rm -rf "${WORK}"' EXIT
 
 if [[ ! -x "${BINARY}" ]]; then
   cargo build --release
-  BINARY="${ROOT}/target/release/hecate-lampad"
+  BINARY="${TARGET_DIR}/release/hecate-lampad"
 fi
 
 if ! command -v rpmbuild >/dev/null 2>&1; then
